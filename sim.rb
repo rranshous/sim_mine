@@ -4,9 +4,13 @@ module Giver
   end
 
   def give to: nil, amt: 0
-    to_give = [amt, product].min
+    to_give = [amt, available_product].min
     self.product -= to_give
     to.receive from: self, amt: to_give
+  end
+
+  def available_product
+    product
   end
 end
 
@@ -19,6 +23,14 @@ end
 class Mine
   attr_accessor :product
   include Giver
+
+  def available_product
+    [product, max_per_work].min
+  end
+
+  def max_per_work
+    10
+  end
 end
 
 class Crew
