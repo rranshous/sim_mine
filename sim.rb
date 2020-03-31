@@ -56,9 +56,9 @@ class Sim
   end
 
   def run_work_cycle
-    extraction_crew.do_work
-    processing_crew.do_work
     sell_crew.do_work
+    processing_crew.do_work
+    extraction_crew.do_work
   end
 
   def set_miner_count amt
