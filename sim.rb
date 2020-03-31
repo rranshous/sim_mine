@@ -37,11 +37,20 @@ class Crew
   end
 end
 
+class SellCrew < Crew
+  def sell_product sim
+    sim.credits += 10 * product
+    self.product = 0
+  end
+end
+
 class Sim
 
-  attr_accessor :extraction_crew, :processing_crew, :sell_crew, :mine
+  attr_accessor :extraction_crew, :processing_crew, :sell_crew, :mine,
+                :credits
 
   def initialize
+    self.credits = 0
     self.mine = Mine.new
     self.mine.product = 100
     self.extraction_crew = Crew.new
@@ -50,13 +59,14 @@ class Sim
     self.processing_crew = Crew.new
     self.processing_crew.source = extraction_crew
     self.processing_crew.size = 1
-    self.sell_crew = Crew.new
+    self.sell_crew = SellCrew.new
     self.sell_crew.source = processing_crew
     self.sell_crew.size = 1
   end
 
   def run_work_cycle
     sell_crew.do_work
+    sell_crew.sell_product self
     processing_crew.do_work
     extraction_crew.do_work
   end
@@ -99,6 +109,10 @@ class Sim
 
   def get_mine_product
     mine.product
+  end
+
+  def get_earned
+    credits
   end
   
 end

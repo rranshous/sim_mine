@@ -32,6 +32,7 @@ class CliGame
     puts "mined resources[#{sim.get_miner_count}]: #{sim.get_miner_product}"
     puts "processed resouces[#{sim.get_processor_count}]: #{sim.get_processor_product}"
     puts "sold resources[#{sim.get_seller_count}]: #{sim.get_seller_product}"
+    puts "credits earned: #{sim.get_earned}"
     puts '-' * 50
   end
 end
