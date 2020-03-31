@@ -1,4 +1,4 @@
-module Producer
+module ProductMover
   def order from: nil, amt: 0
     from.produce to: self, amt: amt
   end
@@ -9,20 +9,43 @@ module Producer
     self.product -= to_produce
   end
 
+  def receive from: nil, amt: 0
+    self.product += amt
+  end
+
   def available_product
     product
   end
 end
 
-module Receiver
-  def receive from: nil, amt: 0
-    self.product += amt
+module Creditor
+  def charge to: nil, amt: 0
+    to.make_payment to: self, amt: amt
+  end
+
+  def make_payment to: nil, amt: 0
+    to_pay = [available_credits, amt].min
+    to.receive_payment from: self, amt: amt
+    self.credits -= amt
+    amt
+  end
+
+  def receive_payment from: nil, amt: 0
+    self.credits += amt
+  end
+
+  def available_credits
+    credits
   end
 end
 
 class Mine
   attr_accessor :product
-  include Producer
+  include ProductMover
+
+  def initialize
+    self.product = 0
+  end
 
   def available_product
     [product, max_per_work].min
@@ -34,8 +57,8 @@ class Mine
 end
 
 class Crew
-  include Producer
-  include Receiver
+  include ProductMover
+  include Creditor
 
   attr_accessor :source, :size, :product
 
@@ -45,23 +68,33 @@ class Crew
   end
 
   def do_work sim: nil
-    received = charge sim: sim, amt: size
+    received = charge to: sim, amt: size
     order from: source, amt: received
   end
 
-  def charge sim: nil, amt: nil
-    sim.charge amt: amt
+  def receive_payment from: nil, amt: 0
   end
 end
 
 class SellCrew < Crew
+  include Creditor
+
+  attr_accessor :credits
+
+  def initialize
+    super
+    self.credits = 0
+  end
+
   def do_work sim: nil
     super
     sell_product sim: sim
   end
 
   def sell_product sim: nil
-    sim.credits += sell_price * product
+    sell_amt = sell_price * product
+    receive_payment from: self, amt: sell_amt
+    make_payment to: sim, amt: sell_amt
     self.product = 0
   end
 
@@ -71,6 +104,8 @@ class SellCrew < Crew
 end
 
 class Sim
+
+  include Creditor
 
   attr_accessor :extraction_crew, :processing_crew, :sell_crew, :mine,
                 :credits
@@ -96,11 +131,6 @@ class Sim
     extraction_crew.do_work sim: self
   end
 
-  def charge amt: 0
-    to_charge = [credits, amt].min
-    self.credits -= to_charge
-    to_charge
-  end
 
   def set_miner_count amt
     extraction_crew.size = amt
