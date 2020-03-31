@@ -1,12 +1,12 @@
-module Giver
-  def take from: nil, amt: 0
-    from.give to: self, amt: amt
+module Producer
+  def order from: nil, amt: 0
+    from.produce to: self, amt: amt
   end
 
-  def give to: nil, amt: 0
-    to_give = [amt, available_product].min
-    self.product -= to_give
-    to.receive from: self, amt: to_give
+  def produce to: nil, amt: 0
+    to_produce = [amt, available_product].min
+    to.receive from: self, amt: to_produce
+    self.product -= to_produce
   end
 
   def available_product
@@ -22,7 +22,7 @@ end
 
 class Mine
   attr_accessor :product
-  include Giver
+  include Producer
 
   def available_product
     [product, max_per_work].min
@@ -34,7 +34,7 @@ class Mine
 end
 
 class Crew
-  include Giver
+  include Producer
   include Receiver
 
   attr_accessor :source, :size, :product
@@ -46,7 +46,7 @@ class Crew
 
   def do_work sim: nil
     received = charge sim: sim, amt: size
-    take from: source, amt: received
+    order from: source, amt: received
   end
 
   def charge sim: nil, amt: nil
