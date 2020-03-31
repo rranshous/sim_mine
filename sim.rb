@@ -25,9 +25,9 @@ module Creditor
 
   def make_payment to: nil, amt: 0
     to_pay = [available_credits, amt].min
-    to.receive_payment from: self, amt: amt
-    self.credits -= amt
-    amt
+    to.receive_payment from: self, amt: to_pay
+    self.credits -= to_pay
+    to_pay
   end
 
   def receive_payment from: nil, amt: 0
@@ -93,7 +93,7 @@ class SellCrew < Crew
 
   def sell_product sim: nil
     sell_amt = sell_price * product
-    receive_payment from: self, amt: sell_amt
+    self.credits += sell_amt
     make_payment to: sim, amt: sell_amt
     self.product = 0
   end

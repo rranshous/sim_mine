@@ -1,7 +1,7 @@
 require_relative 'sim'
 
 def ask_i question, default: 0
-  puts question + "[#{default}]"
+  print question + "[#{default}]: "
   answer = gets.chomp
   answer.empty? ? default : answer.to_i
 end
