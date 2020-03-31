@@ -32,15 +32,29 @@ class Crew
     self.product = 0
   end
 
-  def do_work
-    take from: source, amt: size
+  def do_work sim: nil
+    received = charge sim: sim, amt: size
+    take from: source, amt: received
+  end
+
+  def charge sim: nil, amt: nil
+    sim.charge amt: amt
   end
 end
 
 class SellCrew < Crew
-  def sell_product sim
-    sim.credits += 10 * product
+  def do_work sim: nil
+    super
+    sell_product sim: sim
+  end
+
+  def sell_product sim: nil
+    sim.credits += sell_price * product
     self.product = 0
+  end
+
+  def sell_price
+    10
   end
 end
 
@@ -50,7 +64,7 @@ class Sim
                 :credits
 
   def initialize
-    self.credits = 0
+    self.credits = 100
     self.mine = Mine.new
     self.mine.product = 100
     self.extraction_crew = Crew.new
@@ -65,10 +79,15 @@ class Sim
   end
 
   def run_work_cycle
-    sell_crew.do_work
-    sell_crew.sell_product self
-    processing_crew.do_work
-    extraction_crew.do_work
+    sell_crew.do_work sim: self
+    processing_crew.do_work sim: self
+    extraction_crew.do_work sim: self
+  end
+
+  def charge amt: 0
+    to_charge = [credits, amt].min
+    self.credits -= to_charge
+    to_charge
   end
 
   def set_miner_count amt
