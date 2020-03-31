@@ -1,4 +1,4 @@
-module Source
+module Giver
   def take from: nil, amt: 0
     from.give to: self, amt: amt
   end
@@ -6,17 +6,24 @@ module Source
   def give to: nil, amt: 0
     to_give = [amt, product].min
     self.product -= to_give
-    to.receive amt: to_give
+    to.receive from: self, amt: to_give
+  end
+end
+
+module Receiver
+  def receive from: nil, amt: 0
+    self.product += amt
   end
 end
 
 class Mine
   attr_accessor :product
-  include Source
+  include Giver
 end
 
 class Crew
-  include Source
+  include Giver
+  include Receiver
 
   attr_accessor :source, :size, :product
 
@@ -27,10 +34,6 @@ class Crew
 
   def do_work
     take from: source, amt: size
-  end
-
-  def receive amt: 0
-    self.product += amt
   end
 end
 
