@@ -45,7 +45,11 @@ get '/game/:game_name' do |game_name|
           let el = $("#sim_"+key);
           if(el.length) {
             console.debug("setting game data:", key, simData[key]);
-            el.text(simData[key]);
+            if(el.is("input")) {
+              el.val(simData[key]);
+            } else {
+              el.text(simData[key]);
+            }
           }
         });
       });
@@ -53,7 +57,13 @@ get '/game/:game_name' do |game_name|
 
     function runGame() {
       console.log("runGame name:", gameName);
-      $.post("/api/game/"+gameName+"/run_to_current", function(result) {
+      let data = {
+        minerCount: $("#sim_miner_count").val(),
+        processorCount: $("#sim_processor_count").val(),
+        sellerCount: $("#sim_seller_count").val()
+      };
+      let url = "/api/game/"+gameName+"/run_to_current";
+      $.post(url, JSON.stringify(data), function(result) {
         console.log("runGame result:", result);
         loadGame();
       });
@@ -66,11 +76,11 @@ get '/game/:game_name' do |game_name|
   <p>
     Credits: <span id="sim_credits"></span><br/>
     Mine: <span id="sim_mine_product"></span> left<br/>
-    Miners: <span id="sim_miner_count"></span><br/>
+    Miners: <input type="text" id="sim_miner_count"></input><br/>
     Mined Yesterday: <span id="sim_miner_product"></span><br/>
-    Smelters: <span id="sim_processor_count"></span><br/>
+    Smelters: <input type="text" id="sim_processor_count"></input><br/>
     Smelted Yesterday: <span id="sim_processor_product"></span><br/>
-    Sellers: <span id="sim_seller_count"></span><br/>
+    Sellers: <input type="text" id="sim_seller_count"></input><br/>
   </p>
   <label>Missed Days <span id="game_missed_cycles"></span></label>
   <button onClick="runGame()">Run Game</button>
@@ -108,10 +118,16 @@ post '/api/game/:game_name/run_to_current' do |game_name|
   loader = Sim::Loader.new
   saver = Sim::Saver.new
   sim = Sim::Sim.new
+  body = request.body.read
+  post_data = body != '' ? JSON.parse(body) : {}
+  log "post_data: #{post_data}" unless post_data.empty?
   data = loader.load from: save_path(game_name: game_name), to: sim
   last_work_timestamp = data.save_timestamp
   now_timestamp = Time.now.to_i
   missed_cycles = (now_timestamp - last_work_timestamp) / SECONDS_PER_CYCLE
+  sim.set_miner_count post_data['minerCount'].to_i if post_data['minerCount']
+  sim.set_processor_count post_data['processorCount'].to_i if post_data['processorCount']
+  sim.set_seller_count post_data['sellerCount'].to_i if post_data['sellerCount']
   log "running [#{game_name}] #{missed_cycles} cycles"
   missed_cycles.times do
     sim.run_work_cycle
