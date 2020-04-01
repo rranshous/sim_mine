@@ -76,14 +76,13 @@ get '/game/:game_name' do |game_name|
   <p>
     Credits: <span id="sim_credits"></span><br/>
     Mine: <span id="sim_mine_product"></span> left<br/>
-    Miners: <input type="text" id="sim_miner_count"></input><br/>
+    Hired Miners: <input type="text" id="sim_miner_count"></input><br/>
     Mined Yesterday: <span id="sim_miner_product"></span><br/>
-    Smelters: <input type="text" id="sim_processor_count"></input><br/>
+    Hired Smelters: <input type="text" id="sim_processor_count"></input><br/>
     Smelted Yesterday: <span id="sim_processor_product"></span><br/>
-    Sellers: <input type="text" id="sim_seller_count"></input><br/>
+    Hired Brokers: <input type="text" id="sim_seller_count"></input><br/>
   </p>
-  <label>Missed Days <span id="game_missed_cycles"></span></label>
-  <button onClick="runGame()">Run Game</button>
+  <button onClick="runGame()">Update Hired Workers</button>
   </body></html>
   '''
 end
@@ -101,44 +100,60 @@ end
 
 get '/api/game/:game_name' do |game_name|
   log "getting #{game_name}"
-  loader = Sim::Loader.new
-  data = loader.get_data from: save_path(game_name: game_name)
-  last_work_timestamp = data.save_timestamp
-  now_timestamp = Time.now.to_i
-  missed_cycles = (now_timestamp - last_work_timestamp) / SECONDS_PER_CYCLE
+  run_details = run_sim game_name: game_name
   json({
     game_name: game_name,
-    current_sim_data: data.to_h,
-    missed_cycles: missed_cycles
+    missed_cycles: 0, cycles_run: run_details.cycles_run,
+    current_sim_data: run_details.current_sim_data.to_h,
+    previous_sim_data: run_details.previous_sim_data.to_h
   })
 end
 
 post '/api/game/:game_name/run_to_current' do |game_name|
+  body = request.body.read
+  post_data = body != '' ? JSON.parse(body) : {}
+  log "post_data: #{post_data}" unless post_data.empty?
+  sim_params = {}
+  if post_data['minerCount']
+    sim_params[:miner_count] = post_data['minerCount'].to_i
+    log "updating sim miner count: #{sim_params[:miner_count]}"
+  end
+  if post_data['processorCount']
+    sim_params[:processor_count] = post_data['processorCount'].to_i
+    log "updating sim processor count: #{sim_params[:processor_count]}"
+  end
+  if post_data['sellerCount']
+    sim_params[:seller_count] = post_data['sellerCount'].to_i
+    log "updating sim seller count: #{sim_params[:seller_count]}"
+  end
+  run_details = run_sim game_name: game_name, sim_params: sim_params
+  json({
+    game_name: game_name,
+    missed_cycles: 0, cycles_run: run_details.cycles_run,
+    current_sim_data: run_details.current_sim_data.to_h,
+    previous_sim_data: run_details.previous_sim_data.to_h
+  })
+end
+
+def run_sim game_name: nil, sim_params: {}
   log "running #{game_name}"
   loader = Sim::Loader.new
   saver = Sim::Saver.new
   sim = Sim::Sim.new
-  body = request.body.read
-  post_data = body != '' ? JSON.parse(body) : {}
-  log "post_data: #{post_data}" unless post_data.empty?
   data = loader.load from: save_path(game_name: game_name), to: sim
   last_work_timestamp = data.save_timestamp
   now_timestamp = Time.now.to_i
   missed_cycles = (now_timestamp - last_work_timestamp) / SECONDS_PER_CYCLE
-  sim.set_miner_count post_data['minerCount'].to_i if post_data['minerCount']
-  sim.set_processor_count post_data['processorCount'].to_i if post_data['processorCount']
-  sim.set_seller_count post_data['sellerCount'].to_i if post_data['sellerCount']
+  sim.set_miner_count sim_params[:miner_count].to_i if sim_params[:miner_count]
+  sim.set_processor_count sim_params[:processor_count].to_i if sim_params[:processor_count]
+  sim.set_seller_count sim_params[:seller_count].to_i if sim_params[:seller_count]
   log "running [#{game_name}] #{missed_cycles} cycles"
   missed_cycles.times do
     sim.run_work_cycle
   end
   new_data = saver.save from: sim, to: save_path(game_name: game_name)
-  json({
-    game_name: game_name,
-    missed_cycles: 0, cycles_run: missed_cycles,
-    current_sim_data: new_data.to_h,
-    previous_sim_data: data.to_h
-  })
+  return OpenStruct.new(previous_sim_data: data, current_sim_data: new_data,
+                        cycles_run: missed_cycles)
 end
 
 def save_path game_name: nil
