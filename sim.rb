@@ -40,8 +40,9 @@ module Creditor
 end
 
 class Mine
-  attr_accessor :product
   include ProductMover
+
+  attr_accessor :product
 
   def initialize
     self.product = 0
@@ -130,7 +131,6 @@ class Sim
     processing_crew.do_work sim: self
     extraction_crew.do_work sim: self
   end
-
 
   def set_miner_count amt
     extraction_crew.size = amt
