@@ -132,40 +132,56 @@ class Sim
     extraction_crew.do_work sim: self
   end
 
-  def set_miner_count amt
-    extraction_crew.size = amt
+  def set_mine_product amt
+    mine.product = amt
   end
 
   def get_miner_count
     extraction_crew.size
   end
 
+  def set_miner_count amt
+    extraction_crew.size = amt
+  end
+
   def get_miner_product
     extraction_crew.product
   end
 
-  def set_processor_count amt
-    processing_crew.size = amt
+  def set_miner_product amt
+    extraction_crew.product = amt
   end
 
   def get_processor_count
     processing_crew.size
   end
 
+  def set_processor_count amt
+    processing_crew.size = amt
+  end
+
   def get_processor_product
     processing_crew.product
   end
 
-  def set_seller_count amt
-    sell_crew.size = amt
+  def set_processor_product amt
+    processing_crew.product = amt
   end
 
   def get_seller_count
     sell_crew.size
   end
 
+  def set_seller_count amt
+    sell_crew.size = amt
+  end
+
   def get_seller_product
     sell_crew.product
+  end
+
+  def set_seller_product amt
+    sell_crew.product = amt
   end
 
   def get_mine_product
