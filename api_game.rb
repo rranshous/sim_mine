@@ -141,9 +141,8 @@ def run_sim game_name: nil, sim_params: {}
   saver = Sim::Saver.new
   sim = Sim::Sim.new
   data = loader.load from: save_path(game_name: game_name), to: sim
-  last_work_timestamp = data.save_timestamp
-  now_timestamp = Time.now.to_i
-  missed_cycles = (now_timestamp - last_work_timestamp) / SECONDS_PER_CYCLE
+  last_work_timestamp = data.last_work_timestamp || data.save_timestamp
+  missed_cycles = (Time.now.to_i - last_work_timestamp) / SECONDS_PER_CYCLE
   sim.set_miner_count sim_params[:miner_count].to_i if sim_params[:miner_count]
   sim.set_processor_count sim_params[:processor_count].to_i if sim_params[:processor_count]
   sim.set_seller_count sim_params[:seller_count].to_i if sim_params[:seller_count]
@@ -151,7 +150,9 @@ def run_sim game_name: nil, sim_params: {}
   missed_cycles.times do
     sim.run_work_cycle
   end
-  new_data = saver.save from: sim, to: save_path(game_name: game_name)
+  new_data = saver.create_data from: sim
+  new_data.last_work_timestamp = Time.now.to_i if missed_cycles > 0
+  saver.save_data to: save_path(game_name: game_name), data: new_data
   return OpenStruct.new(previous_sim_data: data, current_sim_data: new_data,
                         cycles_run: missed_cycles)
 end
