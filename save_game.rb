@@ -18,16 +18,19 @@ end
 class SaveGame
   attr_accessor :name, :outstanding_work_cycles, :saver, :loader, :sim
 
-  def get_inputs
+  def get_game_name
     self.name = ask('What is the game name?')
-    self.outstanding_work_cycles = ask_i('How many work cycles do you want to run?',
-                                         default: 1)
+  end
+
+  def get_inputs
     sim.set_miner_count ask_i('How many miners should we have?',
                               default: sim.get_miner_count)
     sim.set_processor_count ask_i('How many processors should we have?',
                                   default: sim.get_processor_count)
     sim.set_seller_count ask_i('How many sellers should we have?',
                                default: sim.get_seller_count)
+    self.outstanding_work_cycles = ask_i('How many work cycles do you want to run?',
+                                         default: 1)
   end
 
   def run_work
@@ -115,9 +118,10 @@ game.saver = Saver.new
 game.loader = Loader.new
 game.sim = Sim.new
 
-game.get_inputs
+game.get_game_name
 game.load
 game.output_reports
+game.get_inputs
 game.run_work
 game.output_reports
 game.save
