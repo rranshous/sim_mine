@@ -133,9 +133,20 @@ module Sim
     end
 
     def run_work_cycle
+      if work_complete?
+        return false
+      end
       sell_crew.do_work sim: self
       processing_crew.do_work sim: self
       extraction_crew.do_work sim: self
+      true
+    end
+
+    def work_complete?
+      mine.product == 0 &&
+        sell_crew.product == 0 &&
+        processing_crew.product == 0 &&
+        extraction_crew.product == 0
     end
 
     def set_mine_product amt
