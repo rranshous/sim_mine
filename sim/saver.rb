@@ -16,6 +16,7 @@ module Sim
       File.open(to, 'w') do |fh|
         fh.write JSON.dump(game_data.to_h)
       end
+      game_data
     end
   end
 end
