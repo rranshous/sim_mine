@@ -42,7 +42,8 @@ class CliGame
 end
 
 game = CliGame.new
-game.sim = Sim.new
+game.sim = Sim::Sim.new
+
 loop do
   game.output_report()
   game.set_inputs()
