@@ -41,16 +41,93 @@
 
   $(function() { loadGame(); });
 </script>
+
+<style>
+  .content {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .content > .cell {
+    width: 9em;
+    height: 6em;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    font-size: 2em;
+  }
+  .cell input {
+    text-align: center;
+    font-size: 0.5em;
+  }
+  .wallet {
+    background-image: url('/images/wallet.png');
+    color: #cddc39;
+  }
+  .wallet > span {
+    margin-top: 1em;
+  }
+  .mine {
+    background-image: url('/images/mine-entrance.jpg');
+    color: #ff9800;
+  }
+  .mine > span {
+    margin-top: -2em;
+  }
+  .miner {
+    background-image: url('/images/miner.jpg');
+    color: #ff9800;
+  }
+  .mined {
+    background-image: url('/images/mined-gold.jpg');
+    color: #ff9800;
+  }
+  .mined > span {
+    margin-top: 1em;
+  }
+  .processor {
+    background-image: url('/images/smelter.jpg');
+  }
+  .processor > input {
+    margin-top: 1em;
+  }
+  .processed {
+    background-image: url('/images/gold.jpg');
+    color: #ff9800;
+  }
+  .seller {
+    background-image: url('/images/seller.png');
+  }
+</style>
 </head><body>
 <h3>Game <span id="game_name"></span></h3>
+<div class="content">
+  <div class="wallet cell">
+    <span id="sim_credits"></span>
+  </div>
+  <div class="mine cell">
+    <span id="sim_mine_product"></span>
+  </div>
+  <div class="miner cell">
+    <input type="text" id="sim_miner_count"></input>
+  </div>
+  <div class="mined cell">
+    <span id="sim_miner_product"></span>
+  </div>
+  <div class="processor cell">
+    <input type="text" id="sim_processor_count"></input>
+  </div>
+  <div class="processed cell">
+    <span id="sim_processor_product"></span>
+  </div>
+  <div class="seller cell">
+    <input type="text" id="sim_seller_count"></input>
+  </div>
+</div>
 <p>
-  Credits: <span id="sim_credits"></span><br/>
-  Mine: <span id="sim_mine_product"></span> left<br/>
-  Hired Miners: <input type="text" id="sim_miner_count"></input><br/>
-  Mined Yesterday: <span id="sim_miner_product"></span><br/>
-  Hired Smelters: <input type="text" id="sim_processor_count"></input><br/>
-  Smelted Yesterday: <span id="sim_processor_product"></span><br/>
-  Hired Brokers: <input type="text" id="sim_seller_count"></input><br/>
 </p>
 <button onClick="runGame()">Update Hired Workers</button>
 </body></html>
