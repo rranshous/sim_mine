@@ -5,7 +5,7 @@ require_relative 'sim'
 
 SECONDS_PER_CYCLE = 30
 
-get '/game' do
+get '/game/' do
   '''
   <html><head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -62,7 +62,7 @@ get '/game/:game_name' do |game_name|
         processorCount: $("#sim_processor_count").val(),
         sellerCount: $("#sim_seller_count").val()
       };
-      let url = "/api/game/"+gameName+"/run_to_current";
+      let url = "/api/game/"+gameName+"/update_params";
       $.post(url, JSON.stringify(data), function(result) {
         console.log("runGame result:", result);
         loadGame();
@@ -109,7 +109,7 @@ get '/api/game/:game_name' do |game_name|
   })
 end
 
-post '/api/game/:game_name/run_to_current' do |game_name|
+post '/api/game/:game_name/update_params' do |game_name|
   body = request.body.read
   post_data = body != '' ? JSON.parse(body) : {}
   log "post_data: #{post_data}" unless post_data.empty?

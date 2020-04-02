@@ -133,7 +133,7 @@ module Sim
     end
 
     def run_work_cycle
-      if work_complete?
+      if endstate?
         return false
       end
       sell_crew.do_work sim: self
@@ -142,7 +142,7 @@ module Sim
       true
     end
 
-    def work_complete?
+    def endstate?
       mine.product == 0 &&
         sell_crew.product == 0 &&
         processing_crew.product == 0 &&
