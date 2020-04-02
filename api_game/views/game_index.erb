@@ -1,0 +1,17 @@
+<html><head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+  function createGame() {
+    let gameName = $("#create_game_name").val();
+    console.log("createGame name:", gameName);
+    $.post("/api/game", JSON.stringify({ gameName: gameName }), function(result, _, xhr) {
+      console.log("createGame result:", result);
+      location.href="/game/"+gameName;
+    });
+  };
+</script>
+</head><body>
+<label>create game <input type="text" id="create_game_name"></label>
+<button onClick="createGame()">Create</button>
+</body></html>
+

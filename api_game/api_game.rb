@@ -1,93 +1,20 @@
 require 'sinatra'
 require "sinatra/json"
 require 'json'
-require_relative 'sim'
+require_relative '../sim'
 
 SECONDS_PER_CYCLE = 30
 
+# HTML
 get '/game/' do
-  '''
-  <html><head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script>
-    function createGame() {
-      let gameName = $("#create_game_name").val();
-      console.log("createGame name:", gameName);
-      $.post("/api/game", JSON.stringify({ gameName: gameName }), function(result, _, xhr) {
-        console.log("createGame result:", result);
-        location.href="/game/"+gameName;
-      });
-    };
-  </script>
-  </head><body>
-  <label>create game <input type="text" id="create_game_name"></label>
-  <button onClick="createGame()">Create</button>
-  </body></html>
-  '''
+  erb :game_index
 end
 
 get '/game/:game_name' do |game_name|
-  '''
-  <html><head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script>
-
-    let gameName = "''' + game_name + '''";
-
-    function loadGame() {
-      console.log("loadGame name:", gameName);
-      $.get("/api/game/"+gameName, function(result) {
-        console.log("loadGame result:", result);
-        $("#game_missed_cycles").text(result.missed_cycles);
-        $("#game_name").text(result.game_name);
-        let simData = result.current_sim_data;
-        Object.keys(result.current_sim_data).forEach(function(key) {
-          let el = $("#sim_"+key);
-          if(el.length) {
-            console.debug("setting game data:", key, simData[key]);
-            if(el.is("input")) {
-              el.val(simData[key]);
-            } else {
-              el.text(simData[key]);
-            }
-          }
-        });
-      });
-    };
-
-    function runGame() {
-      console.log("runGame name:", gameName);
-      let data = {
-        minerCount: $("#sim_miner_count").val(),
-        processorCount: $("#sim_processor_count").val(),
-        sellerCount: $("#sim_seller_count").val()
-      };
-      let url = "/api/game/"+gameName+"/update_params";
-      $.post(url, JSON.stringify(data), function(result) {
-        console.log("runGame result:", result);
-        loadGame();
-      });
-    };
-
-    $(function() { loadGame(); });
-  </script>
-  </head><body>
-  <h3>Game <span id="game_name"></span></h3>
-  <p>
-    Credits: <span id="sim_credits"></span><br/>
-    Mine: <span id="sim_mine_product"></span> left<br/>
-    Hired Miners: <input type="text" id="sim_miner_count"></input><br/>
-    Mined Yesterday: <span id="sim_miner_product"></span><br/>
-    Hired Smelters: <input type="text" id="sim_processor_count"></input><br/>
-    Smelted Yesterday: <span id="sim_processor_product"></span><br/>
-    Hired Brokers: <input type="text" id="sim_seller_count"></input><br/>
-  </p>
-  <button onClick="runGame()">Update Hired Workers</button>
-  </body></html>
-  '''
+  erb :game_view, :locals => { game_name: game_name }
 end
 
-
+# JSON
 post '/api/game' do
   post_data = JSON.parse request.body.read
   game_name = post_data['gameName']
