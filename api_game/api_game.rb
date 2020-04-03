@@ -31,8 +31,8 @@ get '/api/game/:game_name' do |game_name|
   runner = Sim::Runner.new
   run_details = runner.run_sim game_name: game_name
   json({
-    game_name: game_name,
-    missed_cycles: 0, cycles_run: run_details.cycles_run,
+    game_name: game_name, game_over: run_details.sim_endstate,
+    cycles_run: run_details.cycles_run,
     current_sim_data: run_details.current_sim_data.to_h,
     previous_sim_data: run_details.previous_sim_data.to_h
   })
@@ -58,8 +58,8 @@ post '/api/game/:game_name/update_params' do |game_name|
   end
   run_details = runner.run_sim game_name: game_name, sim_params: sim_params
   json({
-    game_name: game_name,
-    missed_cycles: 0, cycles_run: run_details.cycles_run,
+    game_name: game_name, game_over: run_details.sim_endstate,
+    cycles_run: run_details.cycles_run,
     current_sim_data: run_details.current_sim_data.to_h,
     previous_sim_data: run_details.previous_sim_data.to_h
   })
