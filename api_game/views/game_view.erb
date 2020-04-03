@@ -51,10 +51,16 @@
   .content {
     display: flex;
     flex-wrap: wrap;
+    flex-direction: column;
   }
-  .content > .cell {
-    width: 9em;
-    height: 6em;
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
+  .cell {
+    width: 25%;
+    height: 4em;
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
@@ -67,6 +73,7 @@
   .cell input {
     text-align: center;
     font-size: 0.5em;
+    width: 50%
   }
   .wallet {
     background-image: url('/images/wallet.png');
@@ -80,7 +87,7 @@
     color: #ff9800;
   }
   .mine > span {
-    margin-top: -2em;
+    margin-top: -1em;
   }
   .miner {
     background-image: url('/images/miner.jpg');
@@ -117,29 +124,33 @@
 </head><body>
 <h3>Game <span id="game_name"></span></h3>
 <div class="content">
-  <div class="wallet cell">
-    <span id="sim_credits"></span>
+  <div class="row">
+    <div class="mine cell">
+      <span id="sim_mine_product"></span>
+    </div>
+    <div class="mined cell">
+      <span id="sim_miner_product"></span>
+    </div>
+    <div class="processed cell">
+      <span id="sim_processor_product"></span>
+    </div>
+    <div class="sold cell">
+      <span id="game_credits_earned"></span>
+    </div>
   </div>
-  <div class="mine cell">
-    <span id="sim_mine_product"></span>
-  </div>
-  <div class="miner cell">
-    <input type="text" id="sim_miner_count"></input>
-  </div>
-  <div class="mined cell">
-    <span id="sim_miner_product"></span>
-  </div>
-  <div class="processor cell">
-    <input type="text" id="sim_processor_count"></input>
-  </div>
-  <div class="processed cell">
-    <span id="sim_processor_product"></span>
-  </div>
-  <div class="seller cell">
-    <input type="text" id="sim_seller_count"></input>
-  </div>
-  <div class="sold cell">
-    <span id="game_credits_earned"></span>
+  <div class="row">
+    <div class="wallet cell">
+      <span id="sim_credits"></span>
+    </div>
+    <div class="miner cell">
+      <input type="text" id="sim_miner_count"></input>
+    </div>
+    <div class="processor cell">
+      <input type="text" id="sim_processor_count"></input>
+    </div>
+    <div class="seller cell">
+      <input type="text" id="sim_seller_count"></input>
+    </div>
   </div>
 </div>
 <p>
