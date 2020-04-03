@@ -76,7 +76,7 @@ def run_sim game_name: nil, sim_params: {}
   sim.set_seller_count sim_params[:seller_count].to_i if sim_params[:seller_count]
   log "running [#{game_name}] #{missed_cycles} cycles"
   previous_sim_data = nil
-  current_sim_data = data
+  current_sim_data = saver.create_data from: sim
   file_path = save_path game_name: game_name
   if missed_cycles == 0
     last_saved_data = loader.get_historical_data index: -1, from: file_path
