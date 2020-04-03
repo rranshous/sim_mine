@@ -11,7 +11,8 @@ get '/game/' do
 end
 
 get '/game/:game_name' do |game_name|
-  erb :game_view, :locals => { game_name: game_name }
+  @game_name = game_name
+  erb :game_view
 end
 
 # JSON
@@ -65,7 +66,7 @@ end
 def run_sim game_name: nil, sim_params: {}
   log "running #{game_name}"
   loader = Sim::Loader.new
-  saver = Sim::Saver.new
+  saver = Sim::HistorySaver.new
   sim = Sim::Sim.new
   data = loader.load from: save_path(game_name: game_name), to: sim
   last_work_timestamp = data.last_work_timestamp || data.save_timestamp
@@ -74,13 +75,19 @@ def run_sim game_name: nil, sim_params: {}
   sim.set_processor_count sim_params[:processor_count].to_i if sim_params[:processor_count]
   sim.set_seller_count sim_params[:seller_count].to_i if sim_params[:seller_count]
   log "running [#{game_name}] #{missed_cycles} cycles"
+  previous_sim_data = nil
+  current_sim_data = nil
   missed_cycles.times do
-    sim.run_work_cycle
+    unless sim.endstate?
+      previous_sim_data = current_sim_data
+      sim.run_work_cycle
+      current_sim_data = saver.create_data from: sim
+      current_sim_data.last_work_timestamp = Time.now.to_i
+      saver.save_data data: current_sim_data, to: save_path(game_name: game_name)
+    end
   end
-  new_data = saver.create_data from: sim
-  new_data.last_work_timestamp = Time.now.to_i if missed_cycles > 0
-  saver.save_data to: save_path(game_name: game_name), data: new_data
-  return OpenStruct.new(previous_sim_data: data, current_sim_data: new_data,
+  return OpenStruct.new(previous_sim_data: previous_sim_data,
+                        current_sim_data: current_sim_data,
                         cycles_run: missed_cycles)
 end
 
