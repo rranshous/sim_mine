@@ -1,6 +1,7 @@
 require_relative 'sim/data'
 require_relative 'sim/saver'
 require_relative 'sim/loader'
+require_relative 'sim/runner'
 
 module Sim
 
