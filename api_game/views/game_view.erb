@@ -8,22 +8,27 @@
     console.log("loadGame name:", gameName);
     $.get("/api/game/"+gameName, function(result) {
       console.log("loadGame result:", result);
-      $("#game_missed_cycles").text(result.missed_cycles);
-      $("#game_name").text(result.game_name);
-      let simData = result.current_sim_data;
-      Object.keys(result.current_sim_data).forEach(function(key) {
-        let el = $("#sim_"+key);
-        if(el.length) {
-          console.debug("setting game data:", key, simData[key]);
-          if(el.is("input")) {
-            el.val(simData[key]);
-          } else {
-            el.text(simData[key]);
-          }
-        }
-      });
+      updateUi(result);
     });
   };
+
+  function updateUi(result) {
+    $("#game_missed_cycles").text(result.missed_cycles);
+    $("#game_name").text(result.game_name);
+    $("#game_credits_earned").text(result.current_sim_data.credits - result.previous_sim_data.credits);
+    let simData = result.current_sim_data;
+    Object.keys(result.current_sim_data).forEach(function(key) {
+      let el = $("#sim_"+key);
+      if(el.length) {
+        console.debug("setting game data:", key, simData[key]);
+        if(el.is("input")) {
+          el.val(simData[key]);
+        } else {
+          el.text(simData[key]);
+        }
+      }
+    });
+  }
 
   function runGame() {
     console.log("runGame name:", gameName);
@@ -35,7 +40,7 @@
     let url = "/api/game/"+gameName+"/update_params";
     $.post(url, JSON.stringify(data), function(result) {
       console.log("runGame result:", result);
-      loadGame();
+      updateUi(result);
     });
   };
 
@@ -101,6 +106,13 @@
   .seller {
     background-image: url('/images/seller.png');
   }
+  .sold {
+    background-image: url('/images/money-bag.png');
+    color: #607d8b;
+  }
+  .sold > span {
+    margin-left: 1em;
+  }
 </style>
 </head><body>
 <h3>Game <span id="game_name"></span></h3>
@@ -125,6 +137,9 @@
   </div>
   <div class="seller cell">
     <input type="text" id="sim_seller_count"></input>
+  </div>
+  <div class="sold cell">
+    <span id="game_credits_earned"></span>
   </div>
 </div>
 <p>

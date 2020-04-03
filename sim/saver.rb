@@ -30,7 +30,6 @@ module Sim
   # keep a history of all the game saves
   class HistorySaver < Saver
     def save_data to: nil, data: nil
-      puts "saving history"
       current_data = File.open(to, 'r') {|fh| fh.read}
       File.open(history_file_path(to), 'a') do |fh|
         fh.write current_data + "\n"
