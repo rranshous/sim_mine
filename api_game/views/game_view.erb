@@ -44,6 +44,24 @@
     });
   };
 
+  function incriment(id) {
+    let input = $('#' + id);
+    let val = input.val();
+    let data = parseInt(val);
+    console.log({ input, val, data });
+    input.val(data + 1);
+    runGame();
+  };
+
+  function decriment(id) {
+    let input = $('#' + id);
+    let val = input.val();
+    let data = parseInt(val);
+    console.log({ input, val, data });
+    input.val(data - 1);
+    runGame();
+  }
+
   $(function() { loadGame(); });
 </script>
 
@@ -141,18 +159,23 @@
       <span id="sim_credits"></span>
     </div>
     <div class="miner cell">
-      <input type="text" id="sim_miner_count"></input>
+      <button onClick="decriment('sim_miner_count');">-</button>
+      <input type="text" id="sim_miner_count" disabled></input>
+      <button onClick="incriment('sim_miner_count');">+</button>
     </div>
     <div class="processor cell">
+      <button onClick="decriment('sim_processor_count');">-</button>
       <input type="text" id="sim_processor_count"></input>
+      <button onClick="incriment('sim_processor_count');">+</button>
     </div>
     <div class="seller cell">
+      <button onClick="decriment('sim_seller_count');">-</button>
       <input type="text" id="sim_seller_count"></input>
+      <button onClick="incriment('sim_seller_count');">+</button>
     </div>
   </div>
 </div>
 <p>
 </p>
-<button onClick="runGame()">Update Hired Workers</button>
 </body></html>
 

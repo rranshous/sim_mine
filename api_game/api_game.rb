@@ -2,6 +2,7 @@ require 'sinatra'
 require "sinatra/json"
 require 'json'
 require_relative '../sim'
+require_relative 'runner'
 
 SECONDS_PER_CYCLE = 30
 
@@ -28,7 +29,7 @@ end
 
 get '/api/game/:game_name' do |game_name|
   log "getting #{game_name}"
-  runner = Sim::Runner.new
+  runner = Runner.new
   run_details = runner.run_sim game_name: game_name
   json({
     game_name: game_name, game_over: run_details.sim_endstate,
@@ -39,7 +40,7 @@ get '/api/game/:game_name' do |game_name|
 end
 
 post '/api/game/:game_name/update_params' do |game_name|
-  runner = Sim::Runner.new
+  runner = Runner.new
   body = request.body.read
   post_data = body != '' ? JSON.parse(body) : {}
   log "post_data: #{post_data}" unless post_data.empty?
