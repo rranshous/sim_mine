@@ -3,23 +3,19 @@ class Runner
     loader = Sim::HistoryLoader.new
     saver = Sim::HistorySaver.new
     sim = Sim::Sim.new
+    file_path = save_path game_name: game_name
     data = loader.load from: save_path(game_name: game_name), to: sim
-    did_update = update_config sim, sim_params
+    if update_config(sim, sim_params)
+      saver.save from: sim, to: file_path
+    end
     previous_sim_data = nil
     current_sim_data = saver.create_data from: sim
     copy_timestamps from: data, to: current_sim_data
-    file_path = save_path game_name: game_name
-    if did_update
-      saver.save from: sim, to: file_path
-    end
     missed_cycles = calc_missed_cycles data
-    if sim.endstate?
-      missed_cycles = 0
-    end
-    if missed_cycles == 0
-      last_saved_data = loader.get_historical_data index: -1, from: file_path
-      puts "last_saved_data: #{last_saved_data}"
-      previous_sim_data = last_saved_data || current_sim_data
+    if missed_cycles == 0 || sim.endstate?
+      last_data = previous_runs_data loader, file_path, current_sim_data
+      puts "last_data: #{last_data}"
+      previous_sim_data = last_data || current_sim_data
     else
       missed_cycles.times do
         unless sim.endstate?
@@ -30,6 +26,9 @@ class Runner
           saver.save_data data: current_sim_data, to: file_path
         end
       end
+    end
+    if sim.endstate?
+      missed_cycles = 0
     end
     return OpenStruct.new(previous_sim_data: previous_sim_data,
                           current_sim_data: current_sim_data,
@@ -62,5 +61,20 @@ class Runner
   def copy_timestamps from: nil, to: nil
     to.last_work_timestamp = from.last_work_timestamp
     to.save_timestamp = from.save_timestamp
+  end
+
+  def previous_runs_data loader, file_path, current_sim_data
+    puts "current_sim_data: #{current_sim_data}"
+    -1.downto(-1000) do |i|
+      saved_data = loader.get_historical_data index: i, from: file_path
+      puts "eval saved data: #{saved_data}"
+      return nil if saved_data.nil?
+      if saved_data.last_work_timestamp != current_sim_data.last_work_timestamp
+        puts "match"
+        return saved_data
+      end
+    end
+    puts "no match"
+    nil
   end
 end

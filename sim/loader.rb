@@ -53,7 +53,7 @@ module Sim
 
       game_data = Data.new
       entry = IO.readlines(file_path)[index]
-      JSON.load(entry).each do |k, v|
+      (JSON.load(entry) || []).each do |k, v|
         game_data[k] = v
       end
 
