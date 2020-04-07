@@ -1,10 +1,12 @@
+require_relative '../sim'
+
 class Runner
-  def run_sim game_name: nil, sim_params: {}
+  def run_sim game_name: nil, sim_params: {}, file_path: nil
     loader = Sim::HistoryLoader.new
     saver = Sim::HistorySaver.new
     sim = Sim::Sim.new
-    file_path = save_path game_name: game_name
-    data = loader.load from: save_path(game_name: game_name), to: sim
+    file_path ||= save_path game_name: game_name
+    data = loader.load from: file_path, to: sim
     if update_config(sim, sim_params)
       to_save = saver.create_data from: sim
       copy_timestamps from: data, to: to_save
@@ -16,7 +18,6 @@ class Runner
     missed_cycles = calc_missed_cycles data
     if missed_cycles == 0 || sim.endstate?
       last_data = previous_runs_data loader, file_path, current_sim_data
-      puts "last_data: #{last_data}"
       previous_sim_data = last_data || current_sim_data
     else
       missed_cycles.times do
@@ -66,17 +67,13 @@ class Runner
   end
 
   def previous_runs_data loader, file_path, current_sim_data
-    puts "current_sim_data: #{current_sim_data}"
     -1.downto(-1000) do |i|
       saved_data = loader.get_historical_data index: i, from: file_path
-      puts "eval saved data: #{saved_data}"
       return nil if saved_data.nil?
       if saved_data.last_work_timestamp != current_sim_data.last_work_timestamp
-        puts "match"
         return saved_data
       end
     end
-    puts "no match"
     nil
   end
 end

@@ -2,11 +2,9 @@ module Sim
   class Loader
     def load from: nil, to: nil
       if !File.exists? from
-        puts "starting new game"
         return
       end
 
-      puts "Loading saved game"
       game_data = Data.new
       File.open(from, 'r') do |fh|
         JSON.load(fh.read).each do |k, v|
@@ -33,7 +31,6 @@ module Sim
         return nil
       end
 
-      puts "Loading saved game: #{from}"
       game_data = Data.new
       File.open(from, 'r') do |fh|
         JSON.load(fh.read).each do |k, v|
