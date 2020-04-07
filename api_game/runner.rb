@@ -6,7 +6,9 @@ class Runner
     file_path = save_path game_name: game_name
     data = loader.load from: save_path(game_name: game_name), to: sim
     if update_config(sim, sim_params)
-      saver.save from: sim, to: file_path
+      to_save = saver.create_data from: sim
+      copy_timestamps from: data, to: to_save
+      saver.save_data data: to_save, to: file_path
     end
     previous_sim_data = nil
     current_sim_data = saver.create_data from: sim
