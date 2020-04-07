@@ -15,11 +15,14 @@ class Runner
     previous_sim_data = nil
     current_sim_data = saver.create_data from: sim
     copy_timestamps from: data, to: current_sim_data
-    missed_cycles = calc_missed_cycles data
+    next_run_in = calc_seconds_until_next_run loader: loader, file_path: file_path
+    missed_cycles = calc_missed_cycles next_run_in: next_run_in
     if missed_cycles == 0 || sim.endstate?
+      puts "SKIPPING RUN"
       last_data = previous_runs_data loader, file_path, current_sim_data
       previous_sim_data = last_data || current_sim_data
     else
+      puts "RUNNING CYCLES: #{missed_cycles}"
       missed_cycles.times do
         unless sim.endstate?
           previous_sim_data = current_sim_data
@@ -33,10 +36,13 @@ class Runner
     if sim.endstate?
       missed_cycles = 0
     end
+    next_run_in = calc_seconds_until_next_run loader: loader, file_path: file_path
     return OpenStruct.new(previous_sim_data: previous_sim_data,
                           current_sim_data: current_sim_data,
                           cycles_run: missed_cycles,
-                          sim_endstate: sim.endstate?)
+                          sim_endstate: sim.endstate?,
+                          next_run_in: next_run_in
+                         )
   end
 
   def update_config sim, config
@@ -56,9 +62,25 @@ class Runner
     did_update
   end
 
-  def calc_missed_cycles sim_data
-    last_work_timestamp = sim_data.last_work_timestamp || sim_data.save_timestamp
-    (Time.now.to_i - last_work_timestamp) / SECONDS_PER_CYCLE
+  def calc_seconds_until_next_run loader: nil, file_path: nil
+    sim_data = loader.get_data from: file_path
+    if sim_data.reached_endstate
+      return nil
+    end
+    first_sim_data = nil
+    if sim_data.last_work_timestamp.nil?
+      first_sim_data = loader.get_historical_data index: 0, from: file_path
+    end
+    first_sim_data ||= sim_data
+    last_work_timestamp = sim_data.last_work_timestamp || first_sim_data.save_timestamp
+    last_work_timestamp + SECONDS_PER_CYCLE - Time.now.to_i
+  end
+
+  def calc_missed_cycles next_run_in: nil
+    if next_run_in.nil? || next_run_in > 0
+      return 0
+    end
+    (next_run_in.abs.to_f / SECONDS_PER_CYCLE).ceil
   end
 
   def copy_timestamps from: nil, to: nil

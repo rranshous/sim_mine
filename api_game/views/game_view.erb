@@ -16,6 +16,9 @@
     $("#game_missed_cycles").text(result.missed_cycles);
     $("#game_name").text(result.game_name);
     $("#game_credits_earned").text(result.current_sim_data.credits - result.previous_sim_data.credits);
+    let mins = Math.floor(result.next_run_in / 60);
+    let secs = result.next_run_in % 60
+    $("#game_next_run_in").text('' + mins + ':' + secs);
     let simData = result.current_sim_data;
     Object.keys(result.current_sim_data).forEach(function(key) {
       let el = $("#sim_"+key);
@@ -175,6 +178,11 @@
       <input type="text" id="sim_seller_count"></input>
       <button onClick="incriment('sim_seller_count');">+</button>
     </div>
+  </div>
+  <div class="row">
+    <p>
+      New workday starts in <span id="game_next_run_in"></span>
+    </p>
   </div>
 </div>
 <p>

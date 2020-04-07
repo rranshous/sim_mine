@@ -21,7 +21,9 @@ post '/api/game' do
   log "creating game: #{game_name}"
   sim = Sim::Sim.new
   saver = Sim::Saver.new
+  runner = Runner.new
   saver.save to: save_path(game_name: game_name), from: sim
+  runner.run_sim game_name: game_name
   redirect "/api/game/#{game_name}", 201
 end
 
@@ -33,7 +35,8 @@ get '/api/game/:game_name' do |game_name|
     game_name: game_name, game_over: run_details.sim_endstate,
     cycles_run: run_details.cycles_run,
     current_sim_data: run_details.current_sim_data.to_h,
-    previous_sim_data: run_details.previous_sim_data.to_h
+    previous_sim_data: run_details.previous_sim_data.to_h,
+    next_run_in: run_details.next_run_in
   })
 end
 
@@ -57,7 +60,8 @@ post '/api/game/:game_name/update_params' do |game_name|
     game_name: game_name, game_over: run_details.sim_endstate,
     cycles_run: run_details.cycles_run,
     current_sim_data: run_details.current_sim_data.to_h,
-    previous_sim_data: run_details.previous_sim_data.to_h
+    previous_sim_data: run_details.previous_sim_data.to_h,
+    next_run_in: run_details.next_run_in
   })
 end
 

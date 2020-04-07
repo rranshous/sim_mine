@@ -23,6 +23,7 @@ module Sim
       game_data.processor_product = from.get_processor_product
       game_data.seller_count = from.get_seller_count
       game_data.seller_product = from.get_seller_product
+      game_data.reached_endstate = from.endstate?
       game_data
     end
   end
