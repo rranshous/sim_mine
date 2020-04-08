@@ -19,6 +19,7 @@
     let mins = Math.floor(result.next_run_in / 60);
     let secs = result.next_run_in % 60
     $("#game_next_run_in").text('' + mins + ':' + secs);
+    $("#game_over").text("Mine Exhausted");
     let simData = result.current_sim_data;
     Object.keys(result.current_sim_data).forEach(function(key) {
       let el = $("#sim_"+key);
@@ -182,6 +183,11 @@
   <div class="row">
     <p>
       New workday starts in <span id="game_next_run_in"></span>
+    </p>
+  </div>
+  <div class="row">
+    <p>
+      <span id="game_over"></span>
     </p>
   </div>
 </div>
